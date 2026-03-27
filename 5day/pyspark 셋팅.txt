@@ -1,0 +1,38 @@
+
+https://github.com/ilovejwoo1004-bit/AI_Human
+
+
+
+
+## 파이썬 3.9 ~ 3.10 버전 
+: 가상환경에서 python --version 확인
+
+## 기존 java sdk 삭제 (제어판에서 삭제)
+
+
+1. JDK 다운 (디폴트 설치)
+: https://adoptium.net/
+  --> Temurin JDK 11 다운로드
+
+: 환경변수 추가
+  --> JAVA_HOME = C:\Program Files\Eclipse Adoptium\jdk-11.x.x
+  --> PATH = %JAVA_HOME%\bin
+
+
+2. hadoop winutils 다운
+: https://github.com/cdarlint/winutils
+  --> 폴더 구성 : C:\hadoop\bin\winutils.exe
+
+: 환경변수 추가
+  --> HADOOP_HOME = C:\hadoop
+  --> PATH = %HADOOP_HOME%\bin
+
+
+3. pyspark 다운
+: 가상 환경에서 설치
+  --> pip install pyspark
+
+
+
+## Spark 3.3 → Java 8~11 호환
+## Spark 3.5 → Java 17 필요
