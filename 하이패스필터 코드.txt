@@ -1,0 +1,91 @@
+### 하이패스필터 적용 코드
+
+import numpy as np
+import librosa
+import soundfile as sf
+from scipy.signal import butter, filtfilt
+
+# ============================================
+# 1. 오디오 로드
+# ============================================
+file_path = "./audio2/Hornet/Hornet.wav"
+
+# sr=None → 원본 샘플링 주파수 유지
+audio, sr = librosa.load(file_path, sr=None)
+
+print(f"샘플링 주파수: {sr}")
+print(f"오디오 길이(초): {len(audio)/sr:.2f}")
+
+# ============================================
+# 2. High-pass Filter 설계
+# ============================================
+def highpass_filter(data, cutoff, fs, order=5):
+    """
+    data   : 입력 오디오 신호
+    cutoff : 컷오프 주파수 (Hz)
+    fs     : 샘플링 주파수
+    order  : 필터 차수
+    """
+    nyquist = 0.5 * fs          # 나이퀴스트 주파수
+    normal_cutoff = cutoff / nyquist
+    
+    # Butterworth 필터 생성
+    b, a = butter(order, normal_cutoff, btype='high', analog=False)
+    
+    # 필터 적용 (위상 왜곡 최소화)
+    filtered_data = filtfilt(b, a, data)
+    
+    return filtered_data
+
+# ============================================
+# 3. 필터 적용 (100Hz 이상만 통과)
+# ============================================
+cutoff_freq = 90  # Hz
+filtered_audio = highpass_filter(audio, cutoff_freq, sr)
+
+# ============================================
+# 4. 결과 저장
+# ============================================
+output_path = "./audio2/Output_Hornet_hipass.wav"
+sf.write(output_path, filtered_audio, sr)
+
+print("High-pass filtering 완료!")
+
+---------------------------------------------------------------------------------------------------------------------------------
+
+### signal processing 파라미터 설정
+SR = 32768                              # 샘플링 주파수   22050  32768
+DURATION = 1.5                          # 오디오 길이 (초단위)
+SAMPLES_PER_TRACK = SR * DURATION       # 1개 오디오 샘플당 기대되는 총 샘플 수
+N_FFT = 4096                           # 멜 스펙트로그램 생성 시, 사용할 FFT 윈도우 길이  4096
+HOP_LENGTH = 126                       # 프레임 간 hop 크기 (값이 작을수록 시간 해상도 증가)  126
+N_MELS = 126 #192                       # mel filter bank 개수 (너무 작으면 정보 깨지고, 너무 크면 이미지 복잡해짐)  126
+
+----------------------------------------------------------------------------------------------------------------------------------
+
+### 스펙트로그램 그래프
+
+# STFT는 짧은 시간 구간별로 FFT를 수행하여 시간-주파수 2차원 표현생성
+stft_sample = librosa.stft(y_sample, n_fft=N_FFT, hop_length=HOP_LENGTH)
+
+# 복소수 STFT 결과의 절댓값을 취하여 magnitude spectrogram 생성
+spectrogram_sample = np.abs(stft_sample)
+
+# 사람의 청각 및 신호 에너지 해석에 유리하도록 dB 스케일로 변환
+spectrogram_db_sample = librosa.amplitude_to_db(spectrogram_sample, ref=np.max)
+
+# 로그 주파수축 spectrogram을 그린다.
+plt.figure(figsize=(12, 5))
+librosa.display.specshow(
+    spectrogram_db_sample,
+    sr=sr_sample,
+    hop_length=HOP_LENGTH,
+    x_axis='time',
+    y_axis='log',
+    cmap='viridis'   #  magma, inferno, viridis
+)
+plt.colorbar(format='%+2.0f dB')
+plt.title(f"Spectrogram - {sample_class}")
+plt.tight_layout()
+plt.ylim(0, 10000)
+plt.show()
